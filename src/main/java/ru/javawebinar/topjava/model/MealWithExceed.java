@@ -1,15 +1,19 @@
 package ru.javawebinar.topjava.model;
 
+import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
-public class MealWithExceed {
-    private final LocalDateTime dateTime;
+public class MealWithExceed implements Serializable{
+    private  LocalDateTime dateTime;
 
-    private final String description;
+    private  String description;
 
-    private final int calories;
+    private  int calories;
 
-    private final boolean exceed;
+    private  boolean exceed;
+
 
     public MealWithExceed(LocalDateTime dateTime, String description, int calories, boolean exceed) {
         this.dateTime = dateTime;
@@ -17,6 +21,26 @@ public class MealWithExceed {
         this.calories = calories;
         this.exceed = exceed;
     }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public LocalDate getDate(){return dateTime.toLocalDate();}
+    public LocalTime getTime(){return dateTime.toLocalTime();}
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCalories() {
+        return calories;
+    }
+
+    public boolean isExceed() {
+        return exceed;
+    }
+
 
     @Override
     public String toString() {
