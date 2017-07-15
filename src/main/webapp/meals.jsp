@@ -10,6 +10,7 @@
 
 <html>
 <head>
+
     <title>meals</title>
     <style>
 
@@ -59,8 +60,42 @@
                 </c:if>
 
         </c:forEach>
-
     </tbody>
 </table>
+<h2>Add Meal</h2>
+<form id="first" method="post" action="meals"accept-charset="UTF-8">
+<table border>
+    <tbody>
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            Date and Time
+        </th>
+        <th>
+            Calloris
+        </th>
+    </tr>
+
+    <tr>
+        <th>
+            <input form="first" type="text" name = "description">
+        </th>
+        <th>
+            <div>
+                <input form="first" type="datetime-local" name="datetime-local">
+            </div>
+        </th>
+        <th>
+            <div>
+                <input form="first" type="number" name="number">
+            </div>
+        </th>
+    </tr>
+    </tbody>
+</table>
+    <p><input form="first" type="submit" value="Add Meal"></p>
+</form>
 </body>
 </html>
