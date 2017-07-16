@@ -14,8 +14,11 @@ public class MealWithExceed implements Serializable{
 
     private  boolean exceed;
 
+    private int id;
 
-    public MealWithExceed(LocalDateTime dateTime, String description, int calories, boolean exceed) {
+
+    public MealWithExceed(int id, LocalDateTime dateTime, String description, int calories, boolean exceed) {
+        this.id=id;
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
@@ -41,6 +44,9 @@ public class MealWithExceed implements Serializable{
         return exceed;
     }
 
+    public int getId() {
+        return id;
+    }
 
     @Override
     public String toString() {

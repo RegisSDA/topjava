@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.DBService;
+package ru.javawebinar.topjava.DAO;
 
 import ru.javawebinar.topjava.model.Meal;
 
@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 /**
  * Created by MSI on 15.07.2017.
  */
-public class InMemoryDataBase implements DBService {
+public class MealDAOImplInMemoryDB implements MealDAO {
 
     private ConcurrentMap<Integer,Meal> dataBase = new ConcurrentHashMap<>();
-    public InMemoryDataBase() {
+    public MealDAOImplInMemoryDB() {
         List<Meal> meals = Arrays.asList(
                 new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500),
-                new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1500),
+                new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000),
                 new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500),
                 new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000),
                 new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500),
@@ -36,12 +36,13 @@ public class InMemoryDataBase implements DBService {
     }
 
     @Override
-    public void delete(Meal meal) {
-        dataBase.remove(meal.getId());
+    public void delete(int id) {
+        dataBase.remove(id);
     }
 
     @Override
-    public void update(Meal meal) {
+    public void update(Meal meal,int id) {
+        dataBase.remove(id);
         dataBase.put(meal.getId(),meal);
     }
 

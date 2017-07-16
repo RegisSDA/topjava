@@ -45,19 +45,22 @@
             <th>
                 Calloris
             </th>
+            <th>
+                Delete
+            </th>
+            <th>
+                Edit
+            </th>
         </tr>
+
         <c:forEach var="meal" items="${mealList}">
 
-                <c:if test="${meal.exceed==true}">
-                    <tr bgcolor="red">
-                <td bgcolor="red">${meal.description}</td> <td>${meal.date}</td><td>${meal.time}</td><td>${meal.calories}</td>
+                    <tr  bgcolor="${meal.exceed?"red":"green"}">
+                        <td >${meal.description}</td> <td>${meal.date}</td><td>${meal.time}</td><td>${meal.calories}</td>
+                        <td><form method="get" action="edit"><input type="hidden" name="mealid" value="${meal.id}"><input type="submit" value="Delete"></form></td>
+                        <td><form method="post" action="edit.jsp"><input type="hidden" name="mealid" value="${meal.id}"><input type="submit" value="Edit"></form></td>
+
                     </tr>
-                </c:if>
-                <c:if test="${meal.exceed==false}">
-                    <tr bgcolor="green">
-                    <td>${meal.description}</td> <td>${meal.date}</td><td>${meal.time}</td><td>${meal.calories}</td>
-                    </tr>
-                </c:if>
 
         </c:forEach>
     </tbody>
