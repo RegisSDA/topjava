@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
+import ru.javawebinar.topjava.AuthorizedUser;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +17,13 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("forward to users");
-        request.getRequestDispatcher("/users.jsp").forward(request, response);
+        request.setCharacterEncoding("UTF-8");
+        String userID = request.getParameter("userId");
+        if (userID == null) {
+            request.getRequestDispatcher("/users.jsp").forward(request, response);
+        }else{
+            AuthorizedUser.setId(Integer.valueOf(request.getParameter("userId")));
+            response.sendRedirect("meals");
+        }
     }
 }

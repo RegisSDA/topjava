@@ -5,10 +5,23 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <!--
-        <bean class="ru.javawebinar.topjava.repository.mock.MockUserRepositoryImpl" id="mockUserRepository"/>
+        <bean class="ru.javawebinar.topjava.repository.mock.InMemoryUserRepositoryImpl" id="mockUserRepository"/>
 
-        <bean class="ru.javawebinar.topjava.service.UserServiceImpl">
+        <bean class="ru.javawebinar.topjava.service.UserServiceImpl" id="userService">
             <property name="repository" ref="mockUserRepository"/>
+        </bean>
+        <bean class="ru.javawebinar.topjava.web.user.ProfileRestController" id="userRestController">
+            <property name="service" ref="userService"/>
+        </bean>
+
+        <bean class="ru.javawebinar.topjava.repository.mock.InMemoryMealRepositoryImpl" id="mealRepository"/>
+
+        <bean class="ru.javawebinar.topjava.service.MealServiceImpl" id="mealService">
+            <property name="repository" ref="mealRepository"/>
+        </bean>
+
+        <bean class="ru.javawebinar.topjava.web.meal.MealRestController" id="mealRestController">
+            <property name="service" ref="mealService"/>
         </bean>
     -->
 
