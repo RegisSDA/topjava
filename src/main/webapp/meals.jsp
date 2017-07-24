@@ -19,7 +19,7 @@
 <section>
     <h3><a href="index.html">Home</a></h3>
     <h2>Meal list</h2>
-    <a href="meals?action=create">Add Meal</a>
+    <a href="meals?action=create&startTime=${startTime}&endTime=${endTime}&startDate=${startDate}&endDate=${endDate}">Add Meal</a>
     <hr/>
 
     <h2>Select Date and Time</h2>
@@ -34,18 +34,18 @@
         <tbody>
         <tr>
             <td>
-                <input type="time" name="startTime" value="00.00"/>
+                <input type="time" name="startTime" value="${startTime}"/>
             </td>
             <td>
-                <input type="time" name="endTime" value="24.00"/>
+                <input type="time" name="endTime" value="${endTime}"/>
             </td>
         </tr>
         <tr>
             <td>
-                <input type="date" name="startDate" value="01/01/1970"/>
+                <input type="date" name="startDate" value="${startDate}"/>
             </td>
             <td>
-                <input type="date" name="endDate" value="Today"/>
+                <input type="date" name="endDate" value="${endDate}"/>
             </td>
         </tr>
 
@@ -73,8 +73,8 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
-                <td><a href="meals?action=update&id=${meal.id}">Update</a></td>
-                <td><a href="meals?action=delete&id=${meal.id}">Delete</a></td>
+                <td><a href="meals?action=update&id=${meal.id}&startTime=${startTime}&endTime=${endTime}&startDate=${startDate}&endDate=${endDate}">Update</a></td>
+                <td><a href="meals?action=delete&id=${meal.id}&startTime=${startTime}&endTime=${endTime}&startDate=${startDate}&endDate=${endDate}">Delete</a></td>
             </tr>
         </c:forEach>
     </table>

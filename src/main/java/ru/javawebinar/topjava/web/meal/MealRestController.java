@@ -1,14 +1,12 @@
 package ru.javawebinar.topjava.web.meal;
 
-import com.sun.deploy.net.HttpRequest;
-import com.sun.deploy.net.HttpResponse;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.to.MealWithExceed;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletException;
@@ -19,8 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -32,10 +28,27 @@ public class MealRestController {
     @Autowired
     private MealService service;
 
+    /*
     public void setService(MealService service) {
         this.service = service;
     }
+    */
 
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException{
+        request.setCharacterEncoding("UTF-8");
+        String id = request.getParameter("id");
+
+        Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
+                LocalDateTime.parse(request.getParameter("dateTime")),
+                request.getParameter("description"),
+                Integer.valueOf(request.getParameter("calories")),AuthorizedUser.id());
+
+        log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
+        service.save(meal,AuthorizedUser.id());
+        //отображаем список после сохранения
+        getAllWithExceeded(request,response);
+    }
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
@@ -54,38 +67,27 @@ public class MealRestController {
                 break;
             case "all":
             default:
-                getWithExceeded(request,response);
+                getAllWithExceeded(request,response);
                 break;
         }
 
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException{
-        request.setCharacterEncoding("UTF-8");
-        String id = request.getParameter("id");
-
-        Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
-                LocalDateTime.parse(request.getParameter("dateTime")),
-                request.getParameter("description"),
-                Integer.valueOf(request.getParameter("calories")),AuthorizedUser.id());
-
-        log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        service.save(meal,AuthorizedUser.id());
-        response.sendRedirect("meals");
-
-    }
-
-
 
     private void create (HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+        log.info("Create template Meal");
         Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, AuthorizedUser.id());
         request.setAttribute("meal", meal);
+        //устанавливаем дату/время из параметров запроса в качестве атрибутов для генерации новых параметров на jsp
+        setDateTimeAtributes(request);
         request.getRequestDispatcher("/meal.jsp").forward(request, response);
     }
 
     private void update(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         Meal meal = service.get(getId(request),AuthorizedUser.id());
+        log.info("Get meal",meal);
         request.setAttribute("meal", meal);
+        setDateTimeAtributes(request);
         request.getRequestDispatcher("/meal.jsp").forward(request, response);
     }
 
@@ -93,10 +95,11 @@ public class MealRestController {
         int id = getId(request);
         log.info("Delete {}", id);
         service.delete(id,AuthorizedUser.id());
-        response.sendRedirect("meals");
+        getAllWithExceeded(request,response);
     }
 
-    private void getWithExceeded(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+    //отображает еду с фильтрацией по дате/времени, при нулевых/пустых значениях выставляем мин/макс значения
+    private void getAllWithExceeded(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         log.info("getAll");
 
 
@@ -114,10 +117,12 @@ public class MealRestController {
         startDate = startDate==null?LocalDate.MIN:startDate;
         endDate = endDate==null?LocalDate.MAX:endDate;
 
+        //установка параметров времени/даты для отображения поумолчанию
+        setDateTimeAtributes(request);
         request.setAttribute("meals",MealsUtil.getFilteredWithExceeded(
                 service.getAll(AuthorizedUser.id(), startDate,endDate),startTime,
                 endTime,MealsUtil.DEFAULT_CALORIES_PER_DAY));
-        request.getRequestDispatcher("/meals.jsp").forward(request,response);
+        request.getRequestDispatcher("meals.jsp").forward(request,response);
     }
 
 
@@ -133,5 +138,12 @@ public class MealRestController {
     private int getId(HttpServletRequest request) {
         String paramId = Objects.requireNonNull(request.getParameter("id"));
         return Integer.valueOf(paramId);
+    }
+
+    private void setDateTimeAtributes(HttpServletRequest request){
+        request.setAttribute("startDate",request.getParameter("startDate"));
+        request.setAttribute("endDate",request.getParameter("endDate"));
+        request.setAttribute("startTime",request.getParameter("startTime"));
+        request.setAttribute("endTime",request.getParameter("endTime"));
     }
 }

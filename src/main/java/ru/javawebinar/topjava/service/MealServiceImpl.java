@@ -22,10 +22,11 @@ public class MealServiceImpl implements MealService {
     @Autowired
     private MealRepository repository;
 
+ /*
     public void setRepository(MealRepository repository) {
         this.repository = repository;
     }
-
+*/
     public Meal save(Meal meal, int userId){
         Meal mealNew = repository.save(meal,userId);
         ValidationUtil.checkNotFound(mealNew,mealNew.toString());
@@ -46,8 +47,6 @@ public class MealServiceImpl implements MealService {
     public Collection<Meal> getAll(int userId, LocalDate start,LocalDate end){
         Collection<Meal> meals = repository.getAll(userId,start,end);
         log.info("getAll result :"+meals);
-  //      Iterator<Meal> it = meals.iterator();
-  //      log.info(""+it.hasNext());
         return meals;
     }
 }
