@@ -34,6 +34,7 @@
         <input type="hidden" name="endDate" value="${endDate}">
         <input type="hidden" name="startTime" value="${startTime}">
         <input type="hidden" name="endTime" value="${endTime}">
+        <input type="hidden" name="action" value="${param.action}"/>
 
         <input type="hidden" name="id" value="${meal.id}">
         <dl>

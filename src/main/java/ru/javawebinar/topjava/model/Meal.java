@@ -23,19 +23,24 @@ public class Meal extends BaseEntity {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
-        this.userId=userId;
+        this.userId = userId;
+    }
+
+
+    public void setId(Integer id) {
+        super.setId(id);
+    }
+
+    public Integer getId() {
+        return super.getId();
+    }
+
+    public boolean isNew() {
+        return super.isNew();
     }
 
     public Integer getUserId() {
         return userId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public LocalDateTime getDateTime() {
@@ -58,9 +63,6 @@ public class Meal extends BaseEntity {
         return dateTime.toLocalTime();
     }
 
-    public boolean isNew() {
-        return super.isNew();
-    }
 
     @Override
     public String toString() {

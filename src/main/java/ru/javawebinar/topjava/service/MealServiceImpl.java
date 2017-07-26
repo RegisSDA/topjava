@@ -22,31 +22,35 @@ public class MealServiceImpl implements MealService {
     @Autowired
     private MealRepository repository;
 
- /*
-    public void setRepository(MealRepository repository) {
-        this.repository = repository;
-    }
-*/
-    public Meal save(Meal meal, int userId){
-        Meal mealNew = repository.save(meal,userId);
-        ValidationUtil.checkNotFound(mealNew,mealNew.toString());
+    /*
+       public void setRepository(MealRepository repository) {
+           this.repository = repository;
+       }
+   */
+    public Meal save(Meal meal, int userId) {
+        meal = repository.save(meal, userId);
+        ValidationUtil.checkNotFound(meal, meal.toString());
         return meal;
     }
 
-    public boolean delete(int id,int userId) throws NotFoundException {
-        ValidationUtil.checkNotFoundWithId(repository.delete(id,userId),id);
+    public boolean delete(int id, int userId) throws NotFoundException {
+        ValidationUtil.checkNotFoundWithId(repository.delete(id, userId), id);
         return true;
     }
 
     public Meal get(int id, int userId) throws NotFoundException {
-        Meal meal = repository.get(id,userId);
-        ValidationUtil.checkNotFoundWithId (meal,id);
+        Meal meal = repository.get(id, userId);
+        ValidationUtil.checkNotFoundWithId(meal, id);
         return meal;
     }
 
-    public Collection<Meal> getAll(int userId, LocalDate start,LocalDate end){
-        Collection<Meal> meals = repository.getAll(userId,start,end);
-        log.info("getAll result :"+meals);
+    public Collection<Meal> getAll(int userId, LocalDate start, LocalDate end) {
+        Collection<Meal> meals = repository.getAll(userId, start, end);
+        log.info("getAll result :" + meals);
         return meals;
+    }
+
+    public Collection<Meal> getAll(int userId) {
+        return repository.getAll(userId);
     }
 }

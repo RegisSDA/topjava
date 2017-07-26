@@ -8,23 +8,28 @@ import ru.javawebinar.topjava.repository.UserRepository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryUserRepositoryImpl implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepositoryImpl.class);
     private Map<Integer, User> repository = new ConcurrentHashMap<>();
+    private AtomicInteger counter = new AtomicInteger(0);
 
     @Override
     public boolean delete(int id) {
         log.info("delete {}", id);
-        return repository.remove(id)!=null;
+        return repository.remove(id) != null;
     }
 
     @Override
     public User save(User user) {
         log.info("save {}", user);
-        return repository.put(user.getId(),user);
+        if (user.isNew()) {
+            user.setId(counter.getAndIncrement());
+        }
+        return repository.put(user.getId(), user);
     }
 
     @Override
@@ -37,13 +42,9 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     public List<User> getAll() {
         log.info("getAll");
         //сортировка по имени. При совпадении имен - по ID.
-        return repository.values().stream().sorted((a,b)->{
-            int res = a.getName().compareTo(b.getName());
-            if (res==0){
-                return a.getId().compareTo(b.getId());
-            }
-            return res;
-        }).collect(Collectors.toList());
+        Comparator<User> comparator = Comparator.comparing(User::getName).thenComparing(User::getId);
+        return repository.values().stream().sorted(comparator)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -53,7 +54,7 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
         }
         log.info("getByEmail {}", email);
         //поиск по e-mail и возвращение любого найденного, при отсутствии пользователя с заданной почтой возвращаем null;
-        Optional<User> user = repository.values().stream().filter(a->email.equals(a.getEmail())).findAny();
-        return user.isPresent()?user.get():null;
+        Optional<User> user = repository.values().stream().filter(a -> email.equals(a.getEmail())).findAny();
+        return user.isPresent() ? user.get() : null;
     }
 }
