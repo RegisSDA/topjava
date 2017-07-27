@@ -30,10 +30,10 @@
     <hr>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
     <form method="post" action="meals">
-        <input type="hidden" name="startDate" value="${startDate}">
-        <input type="hidden" name="endDate" value="${endDate}">
-        <input type="hidden" name="startTime" value="${startTime}">
-        <input type="hidden" name="endTime" value="${endTime}">
+        <input type="hidden" name="startDate" value="${param.startDate}">
+        <input type="hidden" name="endDate" value="${param.endDate}">
+        <input type="hidden" name="startTime" value="${param.startTime}">
+        <input type="hidden" name="endTime" value="${param.endTime}">
         <input type="hidden" name="action" value="${param.action}"/>
 
         <input type="hidden" name="id" value="${meal.id}">

@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -46,6 +45,7 @@ public class MealServlet extends HttpServlet {
             controller.update(meal, Integer.parseInt(id));
         }
         //отображаем список после сохранения
+        log.info("doPost action:{} startDate:{}",request.getParameter("action"),request.getParameter("startDate"));
         showStartPageWithParameters(request, response);
     }
 
@@ -56,21 +56,21 @@ public class MealServlet extends HttpServlet {
 
         switch (action == null ? "all" : action) {
             case "delete":
+                log.info("Delete");
                 controller.delete(getId(request));
                 showStartPageWithParameters(request, response);
                 break;
             case "create":
                 request.setAttribute("meal", controller.createTamplate());
-                setDateTimeAtributes(request);
                 request.getRequestDispatcher("meal.jsp").forward(request, response);
                 break;
             case "update":
                 request.setAttribute("meal", controller.get(getId(request)));
-                setDateTimeAtributes(request);
                 request.getRequestDispatcher("meal.jsp").forward(request, response);
                 break;
             case "all":
             default:
+                log.info("All+Default");
                 showStartPageWithParameters(request, response);
                 break;
         }
@@ -104,14 +104,9 @@ public class MealServlet extends HttpServlet {
             log.info("getAll with parameters");
             request.setAttribute("meals", controller.getAll(sD, eD, sT, eT));
         }
-        setDateTimeAtributes(request);
+
         request.getRequestDispatcher("meals.jsp").forward(request, response);
     }
 
-    private void setDateTimeAtributes(HttpServletRequest request) {
-        request.setAttribute("startDate", request.getParameter("startDate"));
-        request.setAttribute("endDate", request.getParameter("endDate"));
-        request.setAttribute("startTime", request.getParameter("startTime"));
-        request.setAttribute("endTime", request.getParameter("endTime"));
-    }
+
 }

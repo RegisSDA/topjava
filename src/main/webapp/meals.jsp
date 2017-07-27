@@ -19,7 +19,7 @@
 <section>
     <h3><a href="index.html">Home</a></h3>
     <h2>Meal list</h2>
-    <a href="meals?action=create&startTime=${startTime}&endTime=${endTime}&startDate=${startDate}&endDate=${endDate}">Add Meal</a>
+    <a href="meals?action=create&startTime=${param.startTime}&endTime=${param.endTime}&startDate=${param.startDate}&endDate=${param.endDate}">Add Meal</a>
     <hr/>
 
     <h2>Select Date and Time</h2>
@@ -34,18 +34,18 @@
         <tbody>
         <tr>
             <td>
-                <input type="time" name="startTime" value="${startTime}"/>
+                <input type="time" name="startTime" value="${param.startTime}"/>
             </td>
             <td>
-                <input type="time" name="endTime" value="${endTime}"/>
+                <input type="time" name="endTime" value="${param.endTime}"/>
             </td>
         </tr>
         <tr>
             <td>
-                <input type="date" name="startDate" value="${startDate}"/>
+                <input type="date" name="startDate" value="${param.startDate}"/>
             </td>
             <td>
-                <input type="date" name="endDate" value="${endDate}"/>
+                <input type="date" name="endDate" value="${param.endDate}"/>
             </td>
         </tr>
 
@@ -73,8 +73,8 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
-                <td><a href="meals?action=update&id=${meal.id}&startTime=${startTime}&endTime=${endTime}&startDate=${startDate}&endDate=${endDate}">Update</a></td>
-                <td><a href="meals?action=delete&id=${meal.id}&startTime=${startTime}&endTime=${endTime}&startDate=${startDate}&endDate=${endDate}">Delete</a></td>
+                <td><a href="meals?action=update&id=${meal.id}&startTime=${param.startTime}&endTime=${param.endTime}&startDate=${param.startDate}&endDate=${param.endDate}">Update</a></td>
+                <td><a href="meals?action=delete&id=${meal.id}&startTime=${param.startTime}&endTime=${param.endTime}&startDate=${param.startDate}&endDate=${param.endDate}">Delete</a></td>
             </tr>
         </c:forEach>
     </table>
