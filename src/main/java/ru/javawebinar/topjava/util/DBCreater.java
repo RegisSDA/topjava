@@ -1,0 +1,25 @@
+package ru.javawebinar.topjava.util;
+
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+
+import javax.sql.DataSource;
+
+/**
+ * Created by MSI on 30.07.2017.
+ */
+public class DBCreater extends ResourceDatabasePopulator {
+    private static final ResourceLoader RESOURCE_LOADER = new DefaultResourceLoader();
+
+    private final DataSource dataSource;
+
+    public DBCreater(String scriptLocation, DataSource dataSource) {
+        super(RESOURCE_LOADER.getResource(scriptLocation));
+        this.dataSource = dataSource;
+    }
+
+    public void execute() {
+        execute(dataSource);
+    }
+}

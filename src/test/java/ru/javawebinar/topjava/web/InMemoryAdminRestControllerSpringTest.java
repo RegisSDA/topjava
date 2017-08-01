@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web;
 
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,18 +19,24 @@ import java.util.Collection;
 import static ru.javawebinar.topjava.UserTestData.ADMIN;
 import static ru.javawebinar.topjava.UserTestData.USER;
 
-@ContextConfiguration("classpath:spring/spring-app.xml")
+@ContextConfiguration({
+        "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-db.xml",
+        "classpath:spring/spring-test.xml"
+})
 @RunWith(SpringRunner.class)
 public class InMemoryAdminRestControllerSpringTest {
 
     @Autowired
     private AdminRestController controller;
 
+
     @Autowired
     private UserRepository repository;
 
     @Before
     public void setUp() throws Exception {
+
         repository.getAll().forEach(u -> repository.delete(u.getId()));
         repository.save(USER);
         repository.save(ADMIN);
