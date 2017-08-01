@@ -41,30 +41,29 @@ public class MealServiceImplTest {
     @Test
     public void testGet() throws Exception {
         Meal meal = generateMeals().get(0);
-        MATCHER.assertEquals(meal,service.get(meal.getId(),USER_ID));
+        MATCHER.assertEquals(meal, service.get(meal.getId(), USER_ID));
     }
 
     @Test(expected = NotFoundException.class)
-    public void testGetByOtherUser()throws Exception{
+    public void testGetByOtherUser() throws Exception {
         Meal meal = generateMeals().get(0);
-        MATCHER.assertEquals(meal,service.get(meal.getId(),ADMIN_ID));
+        MATCHER.assertEquals(meal, service.get(meal.getId(), ADMIN_ID));
     }
-
 
 
     @Test
     public void testDelete() throws Exception {
         List<Meal> meals = generateMeals();
         Meal meal = meals.remove(0);
-        service.delete(meal.getId(),USER_ID);
-        MATCHER.assertCollectionEquals(meals,service.getAll(USER_ID));
+        service.delete(meal.getId(), USER_ID);
+        MATCHER.assertCollectionEquals(meals, service.getAll(USER_ID));
     }
 
     @Test(expected = NotFoundException.class)
     public void testDeleteByOtherUser() throws Exception {
         List<Meal> meals = generateMeals();
         Meal meal = meals.remove(0);
-        service.delete(meal.getId(),ADMIN_ID);
+        service.delete(meal.getId(), ADMIN_ID);
 
     }
 
@@ -75,34 +74,34 @@ public class MealServiceImplTest {
         meals.remove(0);
         meals.remove(0);
         meals.remove(0);
-        MATCHER.assertCollectionEquals(meals,service.getBetweenDateTimes(LocalDateTime.MIN,LocalDateTime.of(2015,5,30,19,0),USER_ID));
+        MATCHER.assertCollectionEquals(meals, service.getBetweenDateTimes(LocalDateTime.MIN, LocalDateTime.of(2015, 5, 30, 19, 0), USER_ID));
     }
 
     @Test
     public void testGetAll() throws Exception {
         List<Meal> meals = generateMeals();
-        MATCHER.assertCollectionEquals(meals,service.getAll(USER_ID));
+        MATCHER.assertCollectionEquals(meals, service.getAll(USER_ID));
     }
 
     @Test
     public void testUpdate() throws Exception {
-        Meal meal = service.save(generateNewMeal(),USER_ID);
+        Meal meal = service.save(generateNewMeal(), USER_ID);
         meal.setCalories(3333);
-        service.update(meal,USER_ID);
-        MATCHER.assertEquals(meal,service.get(meal.getId(),USER_ID));
+        service.update(meal, USER_ID);
+        MATCHER.assertEquals(meal, service.get(meal.getId(), USER_ID));
     }
 
     @Test(expected = NotFoundException.class)
     public void testUpdateByOtherUser() throws Exception {
-        Meal meal = service.save(generateNewMeal(),USER_ID);
+        Meal meal = service.save(generateNewMeal(), USER_ID);
         meal.setCalories(3333);
-        service.update(meal,ADMIN_ID);
+        service.update(meal, ADMIN_ID);
     }
 
     @Test
     public void testSave() throws Exception {
-        Meal meal = service.save(generateNewMeal(),USER_ID);
-        MATCHER.assertEquals(meal,service.get(meal.getId(),USER_ID));
+        Meal meal = service.save(generateNewMeal(), USER_ID);
+        MATCHER.assertEquals(meal, service.get(meal.getId(), USER_ID));
     }
 
 }

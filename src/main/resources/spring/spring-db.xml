@@ -17,7 +17,6 @@
     </bean>
 
 
-
     <!--no pooling-->
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">

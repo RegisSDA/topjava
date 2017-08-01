@@ -39,21 +39,21 @@ public class InMemoryMealRestControllerTest {
     @Before
     public void setUp() throws Exception {
         //создаем локальный экземпляр тестовых данных
-        localMeals=generateMealsForInMemory();
+        localMeals = generateMealsForInMemory();
 
-        repository.getAll(USER_ID).forEach(a->repository.delete(a.getId(),USER_ID));
+        repository.getAll(USER_ID).forEach(a -> repository.delete(a.getId(), USER_ID));
 
         //при занесении в базу тестовые Meal автоматически получают актульные id, тк передача ссылки
-        for (Meal meal:localMeals){
+        for (Meal meal : localMeals) {
             meal.setId(null);
-            repository.save(meal,USER_ID);
+            repository.save(meal, USER_ID);
         }
     }
 
     @Test
     public void get() throws Exception {
         Meal meal = localMeals.get(0);
-        MATCHER.assertEquals(meal,controller.get(meal.getId()));
+        MATCHER.assertEquals(meal, controller.get(meal.getId()));
     }
 
     @Test
@@ -61,19 +61,19 @@ public class InMemoryMealRestControllerTest {
         Meal meal = localMeals.get(0);
         controller.delete(meal.getId());
         localMeals.remove(meal);
-        MATCHER_EXCEEDED.assertCollectionEquals(MealsUtil.getFilteredWithExceeded(localMeals, LocalTime.MIN, LocalTime.MAX,MealsUtil.DEFAULT_CALORIES_PER_DAY),controller.getAll());
+        MATCHER_EXCEEDED.assertCollectionEquals(MealsUtil.getFilteredWithExceeded(localMeals, LocalTime.MIN, LocalTime.MAX, MealsUtil.DEFAULT_CALORIES_PER_DAY), controller.getAll());
     }
 
     @Test
     public void getAll() throws Exception {
-        MATCHER_EXCEEDED.assertCollectionEquals(MealsUtil.getFilteredWithExceeded(localMeals, LocalTime.MIN, LocalTime.MAX,MealsUtil.DEFAULT_CALORIES_PER_DAY),controller.getAll());
+        MATCHER_EXCEEDED.assertCollectionEquals(MealsUtil.getFilteredWithExceeded(localMeals, LocalTime.MIN, LocalTime.MAX, MealsUtil.DEFAULT_CALORIES_PER_DAY), controller.getAll());
     }
 
     @Test
     public void create() throws Exception {
         Meal newMeal = new Meal(LocalDateTime.of(2015, Month.MAY, 23, 10, 0), "Завтрак", 500);
         controller.create(newMeal);
-        MATCHER.assertEquals(newMeal,controller.get(newMeal.getId()));
+        MATCHER.assertEquals(newMeal, controller.get(newMeal.getId()));
 
     }
 
@@ -82,7 +82,7 @@ public class InMemoryMealRestControllerTest {
         Meal meal = localMeals.get(0);
         meal.setCalories(10000);
         controller.update(meal, meal.getId());
-        MATCHER.assertEquals(meal,controller.get(meal.getId()));
+        MATCHER.assertEquals(meal, controller.get(meal.getId()));
     }
 
     @Test
@@ -94,8 +94,8 @@ public class InMemoryMealRestControllerTest {
         localMeals.remove(0);
 
         MATCHER_EXCEEDED.assertCollectionEquals(
-                MealsUtil.getFilteredWithExceeded(localMeals,LocalTime.of(7,0),LocalTime.of(18,0),MealsUtil.DEFAULT_CALORIES_PER_DAY),
-                controller.getBetween(LocalDate.MIN,LocalTime.of(7,0),LocalDate.of(2015,5,30),LocalTime.of(18,0)));
+                MealsUtil.getFilteredWithExceeded(localMeals, LocalTime.of(7, 0), LocalTime.of(18, 0), MealsUtil.DEFAULT_CALORIES_PER_DAY),
+                controller.getBetween(LocalDate.MIN, LocalTime.of(7, 0), LocalDate.of(2015, 5, 30), LocalTime.of(18, 0)));
     }
 
 }
