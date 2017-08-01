@@ -1,18 +1,21 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.util.DbPopulator;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-
-import static org.junit.Assert.*;
+import java.util.List;
+import static ru.javawebinar.topjava.MealTestData.*;
 
 /**
  * Created by MSI on 30.07.2017.
@@ -23,43 +26,71 @@ import static org.junit.Assert.*;
 })
 @RunWith(SpringRunner.class)
 public class JdbcMealRepositoryImplTest {
-    private final int TRUE_USER = 100001;
-    private final int FALSE_USER = 100000;
+
     @Autowired
     private JdbcMealRepositoryImpl repository;
-    @Test
-    public void save() throws Exception {
-        Meal testMeal = new Meal(LocalDateTime.of(2015, Month.JUNE, 1, 14, 0), "Админ_ланч", 510);
-        //сохранение
-        repository.save(testMeal,TRUE_USER);
-        //обновление записи
-        testMeal.setCalories(2000);
-        repository.save(testMeal,TRUE_USER);
-        //пытаемся обновить запись под другим пользователем
-        repository.save(testMeal, FALSE_USER);
-        //проверяем можем ли мы получить запись сохнаненную под другим пользователем
-        Meal returned = repository.get(testMeal.getId(),FALSE_USER);
-        Assert.assertEquals(null,returned);
-        //олучаем сохраненнуб еду
-        returned = repository.get(testMeal.getId(),TRUE_USER);
-        Assert.assertEquals(testMeal.toString(),returned.toString());
-        //удаляем и проверяем что действительно удалилась
-        repository.delete(testMeal.getId(),TRUE_USER);
-        returned = repository.get(testMeal.getId(),TRUE_USER);
-        Assert.assertEquals(null,returned);
-        for (Meal meal:repository.getAll(TRUE_USER)){
-            System.out.println(meal);
-        }
-        for (Meal meal:repository.getAll(FALSE_USER)){
-            System.out.println(meal);
-        }
-        for (Meal meal:repository.getBetween(
-                LocalDateTime.of(2015,5,29,0,0,0),
-                LocalDateTime.of(2015,5,31,0,0,0),FALSE_USER)){
-            System.out.println(meal);
-        }
 
+    @Autowired
+    private DbPopulator dbPopulator;
+
+    @Before
+    public void setUp(){
+        dbPopulator.execute();
     }
 
+    @Test
+    public void save() throws Exception {
+
+        Meal testMeal = new Meal(LocalDateTime.of(2015, Month.JUNE, 1, 14, 0), "test_ланч", 510);
+        testMeal= repository.save(testMeal, USER_ID);
+        MATCHER.assertEquals(testMeal,repository.get(testMeal.getId(), USER_ID));
+    }
+
+    @Test
+    public void testFalseUpdate() throws Exception {
+        Meal meal = generateMeals().get(0);
+        meal.setCalories(9999);
+        Assert.assertEquals(null,repository.save(meal,ADMIN_ID));
+    }
+
+    @Test
+    public void testDelete() {
+        List<Meal> meals = MealTestData.generateMeals();
+        repository.delete(meals.remove(0).getId(), USER_ID);
+        MATCHER.assertCollectionEquals(meals,repository.getAll(USER_ID));
+    }
+    @Test
+    public void testFalseDelete() {
+        List<Meal> meals = MealTestData.generateMeals();
+        Assert.assertEquals(false,repository.delete(meals.remove(0).getId(), ADMIN_ID));
+    }
+
+    @Test
+    public void testGet() {
+        Meal meal = MEALS.get(0);
+        MATCHER.assertEquals(meal,repository.get(meal.getId(), USER_ID));
+    }
+
+    @Test
+    public void testFalseGet() {
+        Meal meal = MEALS.get(0);
+        Assert.assertEquals(null,repository.get(meal.getId(), ADMIN_ID));
+    }
+
+    @Test
+    public void testGetAll() {
+        MATCHER.assertCollectionEquals(MEALS,repository.getAll(USER_ID));
+    }
+
+    @Test
+    public void testGetBetween() {
+        List<Meal> meals = generateMeals();
+        meals.remove(0);
+        meals.remove(0);
+        meals.remove(0);
+        MATCHER.assertCollectionEquals(meals,repository.getBetween(
+                LocalDateTime.of(2015,5,29,0,0,0),
+                LocalDateTime.of(2015,5,30,1,0,0), USER_ID));
+    }
 
 }
