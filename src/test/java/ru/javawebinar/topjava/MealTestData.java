@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class MealTestData {
     public static final int USER_ID = 100000;
     public static final int ADMIN_ID = 100001;
-
+    public static final Meal generateNewMeal() {return new Meal(LocalDateTime.of(2015, Month.MAY, 10, 13, 0), "Обед", 10000);}
 
     public static final List<Meal> MEALS =Arrays.asList(
             new Meal(100002,LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500),
@@ -42,7 +42,7 @@ public class MealTestData {
     ).stream().sorted((a,b)->(b.getDateTime().compareTo(a.getDateTime()))).collect(Collectors.toList());
 
     public static List<Meal> generateMeals(){
-        return new ArrayList<Meal>(MEALS);
+        return new ArrayList<>(MEALS);
     }
     public static List<Meal> generateMealsForInMemory(){
         return new ArrayList<>(MEALS_FOR_INMEMORY);

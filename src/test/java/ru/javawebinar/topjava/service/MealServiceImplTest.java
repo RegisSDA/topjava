@@ -25,7 +25,7 @@ import static ru.javawebinar.topjava.MealTestData.*;
 })
 @RunWith(SpringRunner.class)
 public class MealServiceImplTest {
-    private final Meal newMeal =  new Meal(LocalDateTime.of(2015, Month.MAY, 10, 13, 0), "Обед", 10000);
+
 
     @Autowired
     private MealService service;
@@ -86,7 +86,7 @@ public class MealServiceImplTest {
 
     @Test
     public void testUpdate() throws Exception {
-        Meal meal = service.save(newMeal,USER_ID);
+        Meal meal = service.save(generateNewMeal(),USER_ID);
         meal.setCalories(3333);
         service.update(meal,USER_ID);
         MATCHER.assertEquals(meal,service.get(meal.getId(),USER_ID));
@@ -94,14 +94,14 @@ public class MealServiceImplTest {
 
     @Test(expected = NotFoundException.class)
     public void testUpdateByOtherUser() throws Exception {
-        Meal meal = service.save(newMeal,USER_ID);
+        Meal meal = service.save(generateNewMeal(),USER_ID);
         meal.setCalories(3333);
         service.update(meal,ADMIN_ID);
     }
 
     @Test
     public void testSave() throws Exception {
-        Meal meal = service.save(newMeal,USER_ID);
+        Meal meal = service.save(generateNewMeal(),USER_ID);
         MATCHER.assertEquals(meal,service.get(meal.getId(),USER_ID));
     }
 
