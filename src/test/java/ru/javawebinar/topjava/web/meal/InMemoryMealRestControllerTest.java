@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -22,8 +23,6 @@ import static ru.javawebinar.topjava.MealTestData.*;
  * Created by MSI on 01.08.2017.
  */
 @ContextConfiguration({
-        "classpath:spring/spring-app.xml",
-        "classpath:spring/spring-db.xml",
         "classpath:spring/spring-test.xml"
 })
 @RunWith(SpringRunner.class)
@@ -39,7 +38,7 @@ public class InMemoryMealRestControllerTest {
     @Before
     public void setUp() throws Exception {
         //создаем локальный экземпляр тестовых данных
-        localMeals = generateMealsForInMemory();
+        localMeals = new ArrayList<>(generateMealsList(MEAL_6, MEAL_5, MEAL_4, MEAL_3, MEAL_2, MEAL_1));
 
         repository.getAll(USER_ID).forEach(a -> repository.delete(a.getId(), USER_ID));
 
@@ -87,8 +86,7 @@ public class InMemoryMealRestControllerTest {
 
     @Test
     public void getBetween() throws Exception {
-        //удалаяем еду за 31 и ужин 30-го
-        localMeals.remove(0);
+        //удалаяем еду за 31
         localMeals.remove(0);
         localMeals.remove(0);
         localMeals.remove(0);

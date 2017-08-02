@@ -42,8 +42,8 @@ public class JdbcMealRepositoryImplTest {
     @Test
     public void save() throws Exception {
 
-        Meal testMeal = new Meal(LocalDateTime.of(2015, Month.JUNE, 1, 14, 0), "test_ланч", 510);
-        testMeal = repository.save(testMeal, USER_ID);
+        Meal testMeal = generateNewMeal();
+        repository.save(testMeal, USER_ID);
         MATCHER.assertEquals(testMeal, repository.get(testMeal.getId(), USER_ID));
     }
 
@@ -55,43 +55,35 @@ public class JdbcMealRepositoryImplTest {
 
     @Test
     public void testDelete() {
-        List<Meal> meals = MealTestData.generateMeals();
-        repository.delete(meals.remove(0).getId(), USER_ID);
-        MATCHER.assertCollectionEquals(meals, repository.getAll(USER_ID));
+        repository.delete(MEAL_1.getId(), USER_ID);
+        MATCHER.assertCollectionEquals(generateMealsList(MEAL_6, MEAL_5, MEAL_4, MEAL_3, MEAL_2), repository.getAll(USER_ID));
     }
 
     @Test
     public void testFalseDelete() {
-        List<Meal> meals = MealTestData.generateMeals();
-        Assert.assertEquals(false, repository.delete(meals.remove(0).getId(), ADMIN_ID));
+        Assert.assertEquals(false, repository.delete(MEAL_6.getId(), ADMIN_ID));
     }
 
     @Test
     public void testGet() {
-        Meal meal = MEALS.get(0);
-        MATCHER.assertEquals(meal, repository.get(meal.getId(), USER_ID));
+        MATCHER.assertEquals(MEAL_1, repository.get(MEAL_1.getId(), USER_ID));
     }
 
     @Test
     public void testFalseGet() {
-        Meal meal = MEALS.get(0);
-        Assert.assertEquals(null, repository.get(meal.getId(), ADMIN_ID));
+        Assert.assertEquals(null, repository.get(MEAL_1.getId(), ADMIN_ID));
     }
 
     @Test
     public void testGetAll() {
-        MATCHER.assertCollectionEquals(MEALS, repository.getAll(USER_ID));
+        MATCHER.assertCollectionEquals(generateMealsList(MEAL_6, MEAL_5, MEAL_4, MEAL_3, MEAL_2, MEAL_1), repository.getAll(USER_ID));
     }
 
     @Test
     public void testGetBetween() {
-        List<Meal> meals = generateMeals();
-        meals.remove(0);
-        meals.remove(0);
-        meals.remove(0);
-        MATCHER.assertCollectionEquals(meals, repository.getBetween(
+        MATCHER.assertCollectionEquals(generateMealsList(MEAL_3, MEAL_2, MEAL_1), repository.getBetween(
                 LocalDateTime.of(2015, 5, 29, 0, 0, 0),
-                LocalDateTime.of(2015, 5, 30, 1, 0, 0), USER_ID));
+                LocalDateTime.of(2015, 5, 30, 23, 0, 0), USER_ID));
     }
 
 }
