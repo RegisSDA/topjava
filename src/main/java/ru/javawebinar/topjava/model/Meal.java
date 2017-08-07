@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.model;
 
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
@@ -23,11 +24,11 @@ import java.time.LocalTime;
 @Table(name = "meals", uniqueConstraints = {@UniqueConstraint(name = "meals_idx", columnNames = {"date_time", "user_id"})})
 public class Meal extends BaseEntity {
 
-    public static final String DELETE = "delete meal";
-    public static final String GET = "getQuery";
-    public static final String GETALL = "getAll";
-    public static final String GETBETWEEN = "get between";
-    public static final String UPDATE = "Meal.Update";
+    public static final String DELETE = "Meal.delete";
+    public static final String GET = "Meal.get";
+    public static final String GETALL = "Meal.getAll";
+    public static final String GETBETWEEN = "Meal.getBetween";
+    public static final String UPDATE = "Meal.update";
 
     @Column(name = "date_time", nullable = false)
     @NotNull
@@ -35,6 +36,7 @@ public class Meal extends BaseEntity {
 
     @Column(name = "description", nullable = false)
     @NotNull
+    @NotBlank
     @Length(min = 2)
     private String description;
 

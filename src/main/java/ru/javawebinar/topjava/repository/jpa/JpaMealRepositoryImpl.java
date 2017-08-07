@@ -62,7 +62,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
             return null;
         }
 */
-        List<Meal> result = entityManager.createNamedQuery("getQuery", Meal.class)
+        List<Meal> result = entityManager.createNamedQuery("Meal.get", Meal.class)
                 .setParameter("id", id)
                 .setParameter("user_id", userId).getResultList();
         return DataAccessUtils.singleResult(result);
@@ -70,7 +70,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return entityManager.createNamedQuery("getAll", Meal.class)
+        return entityManager.createNamedQuery("Meal.getAll", Meal.class)
                 .setParameter("user_id", userId).getResultList();
     }
 

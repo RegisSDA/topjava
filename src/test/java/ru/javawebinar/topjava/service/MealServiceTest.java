@@ -1,7 +1,12 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -11,9 +16,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -26,13 +37,56 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    public static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
 
     static {
         SLF4JBridgeHandler.install();
     }
 
+    private static long time;
+    private static List<String> results = new ArrayList<>();
+
     @Autowired
     private MealService service;
+/*    @Before
+    public void setUp(){
+        time=System.nanoTime();
+    }
+
+    @After
+    public void setDown(){
+        log.info("Время выполнения, сек = {}",(System.nanoTime()-time)/(double)1000000000);
+    }
+*/
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @Rule
+    public TestWatcher watcher = new TestWatcher() {
+        String name;
+
+        @Override
+        protected void starting(Description description) {
+            time = System.nanoTime();
+            name = description.getMethodName();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            String out = String.format("Время выполнения %s, сек = %.6f", name, (System.nanoTime() - time) / (double) 1000000000);
+            results.add(out);
+            log.info(out);
+        }
+    };
+
+
+    @AfterClass
+    public static void afterClass() {
+        for (String s : results) {
+            log.info(s);
+        }
+    }
 
     @Test
     public void testDelete() throws Exception {
@@ -40,8 +94,9 @@ public class MealServiceTest {
         MATCHER.assertCollectionEquals(Arrays.asList(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2), service.getAll(USER_ID));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testDeleteNotFound() throws Exception {
+        expectedException.expect(NotFoundException.class);
         service.delete(MEAL1_ID, 1);
     }
 
@@ -58,8 +113,9 @@ public class MealServiceTest {
         MATCHER.assertEquals(ADMIN_MEAL1, actual);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testGetNotFound() throws Exception {
+        expectedException.expect(NotFoundException.class);
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
@@ -70,8 +126,9 @@ public class MealServiceTest {
         MATCHER.assertEquals(updated, service.get(MEAL1_ID, USER_ID));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testUpdateNotFound() throws Exception {
+        expectedException.expect(NotFoundException.class);
         service.update(MEAL1, ADMIN_ID);
     }
 
