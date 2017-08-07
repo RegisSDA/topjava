@@ -1,16 +1,47 @@
 package ru.javawebinar.topjava.model;
 
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+
+@NamedQueries({
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:user_id"),
+        @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m WHERE m.id=:id AND m.user.id=:user_id"),
+        @NamedQuery(name = Meal.GETALL, query = "SELECT m FROM Meal m WHERE m.user.id=:user_id ORDER BY m.dateTime DESC "),
+        @NamedQuery(name = Meal.GETBETWEEN, query = "SELECT m FROM Meal m WHERE  m.user.id=:user_id AND m.dateTime BETWEEN :startdate AND  :enddate ORDER BY m.dateTime DESC"),
+        @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal u SET u.dateTime=:dateTime,u.calories=:calories,u.description=:description WHERE u.id=:id AND u.user.id=:userId"),
+})
+
+@Entity
+@Table(name = "meals", uniqueConstraints = {@UniqueConstraint(name = "meals_idx", columnNames = {"date_time", "user_id"})})
 public class Meal extends BaseEntity {
+
+    public static final String DELETE = "delete meal";
+    public static final String GET = "getQuery";
+    public static final String GETALL = "getAll";
+    public static final String GETBETWEEN = "get between";
+    public static final String UPDATE = "Meal.Update";
+
+    @Column(name = "date_time", nullable = false)
+    @NotNull
     private LocalDateTime dateTime;
 
+    @Column(name = "description", nullable = false)
+    @NotNull
+    @Length(min = 2)
     private String description;
 
+
+    @Column(name = "calories", nullable = false)
+    @NotNull
+    @Range(min = 50, max = 10000)
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
