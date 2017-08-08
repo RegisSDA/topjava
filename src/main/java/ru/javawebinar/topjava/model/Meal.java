@@ -16,7 +16,7 @@ import java.time.LocalTime;
         @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:user_id"),
         @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m WHERE m.id=:id AND m.user.id=:user_id"),
         @NamedQuery(name = Meal.GETALL, query = "SELECT m FROM Meal m WHERE m.user.id=:user_id ORDER BY m.dateTime DESC "),
-        @NamedQuery(name = Meal.GETBETWEEN, query = "SELECT m FROM Meal m WHERE  m.user.id=:user_id AND m.dateTime BETWEEN :startdate AND  :enddate ORDER BY m.dateTime DESC"),
+        @NamedQuery(name = Meal.GET_BETWEEN, query = "SELECT m FROM Meal m WHERE  m.user.id=:user_id AND m.dateTime BETWEEN :startdate AND  :enddate ORDER BY m.dateTime DESC"),
         @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal u SET u.dateTime=:dateTime,u.calories=:calories,u.description=:description WHERE u.id=:id AND u.user.id=:userId"),
 })
 
@@ -27,7 +27,7 @@ public class Meal extends BaseEntity {
     public static final String DELETE = "Meal.delete";
     public static final String GET = "Meal.get";
     public static final String GETALL = "Meal.getAll";
-    public static final String GETBETWEEN = "Meal.getBetween";
+    public static final String GET_BETWEEN = "Meal.getBetween";
     public static final String UPDATE = "Meal.update";
 
     @Column(name = "date_time", nullable = false)
@@ -35,7 +35,6 @@ public class Meal extends BaseEntity {
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
-    @NotNull
     @NotBlank
     @Length(min = 2)
     private String description;
@@ -47,6 +46,7 @@ public class Meal extends BaseEntity {
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
     private User user;
 
     public Meal() {
