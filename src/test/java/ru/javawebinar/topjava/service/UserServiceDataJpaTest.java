@@ -6,7 +6,6 @@ import ru.javawebinar.topjava.Profiles;
 /**
  * Created by MSI on 16.08.2017.
  */
-
-@ActiveProfiles(profiles = Profiles.JDBC)
-public class UserServiceTestJdbc extends UserServiceTest {
+@ActiveProfiles(profiles = Profiles.DATAJPA)
+public class UserServiceDataJpaTest extends UserServiceTest {
 }

@@ -6,6 +6,7 @@ import ru.javawebinar.topjava.Profiles;
 /**
  * Created by MSI on 15.08.2017.
  */
-@ActiveProfiles(profiles = Profiles.DATAJPA)
-public class MealServiceTestDataJpa extends MealServiceTest {
+
+@ActiveProfiles(profiles = Profiles.JDBC)
+public class MealServiceJdbcTest extends MealServiceTest {
 }
