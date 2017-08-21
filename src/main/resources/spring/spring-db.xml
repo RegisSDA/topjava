@@ -12,6 +12,8 @@
        http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
 
+
+
     <beans profile="hsqldb">
         <context:property-placeholder location="classpath:db/hsqldb.properties" system-properties-mode="OVERRIDE"/>
 
@@ -23,11 +25,6 @@
               p:username="${database.username}"
               p:password="${database.password}"/>
 
-
-        <jdbc:initialize-database data-source="dataSource" enabled="${database.init}">
-            <jdbc:script location="classpath:db/${jdbc.initLocation}"/>
-            <jdbc:script encoding="utf-8" location="classpath:db/populateDB.sql"/>
-        </jdbc:initialize-database>
     </beans>
 
     <beans profile="postgres">
@@ -40,11 +37,13 @@
               p:username="${database.username}"
               p:password="${database.password}"/>
 
+    </beans>
+
+    <beans profile="postgres, hsqldb">
         <jdbc:initialize-database data-source="dataSource" enabled="${database.init}">
             <jdbc:script location="classpath:db/${jdbc.initLocation}"/>
             <jdbc:script encoding="utf-8" location="classpath:db/populateDB.sql"/>
         </jdbc:initialize-database>
-
     </beans>
 
     <beans profile="datajpa, jpa">

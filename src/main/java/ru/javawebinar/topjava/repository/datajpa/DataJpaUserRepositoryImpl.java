@@ -1,11 +1,13 @@
 package ru.javawebinar.topjava.repository.datajpa;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -26,8 +28,12 @@ public class DataJpaUserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    @Transactional
     public User get(int id) {
-        return crudRepository.findOne(id);
+        User user = crudRepository.findOne(id);
+            if(user!=null)
+        Hibernate.initialize(user.getMeals());
+        return user;
     }
 
     @Override
