@@ -1,5 +1,4 @@
-package ru.javawebinar.topjava.service;
-
+package ru.javawebinar.topjava.service.inmemory;
 
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -9,14 +8,13 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.repository.mock.InMemoryMealRepositoryImpl;
+import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
@@ -28,18 +26,20 @@ import java.util.concurrent.TimeUnit;
 import static java.time.LocalDateTime.of;
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.MealTestData.MEAL1;
+import static ru.javawebinar.topjava.MealTestData.MEAL2;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 import static ru.javawebinar.topjava.service.AbstractServiceTest.validateRootCause;
 
-@ContextConfiguration({
-        "classpath:spring/spring-app.xml",
-        "classpath:spring/spring-db.xml"
-})
+
+/**
+ * Created by MSI on 23.08.2017.
+ */
+@ContextConfiguration({"classpath:spring/mock.xml",
+                        "classpath:spring/spring-app.xml"})
 @RunWith(SpringRunner.class)
-@Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-@ActiveProfiles(resolver = ActiveDbProfileResolver.class)
-public abstract class AbstractMealServiceTest {
+public class InMemoryMealServiceTest  {
     private static final Logger resultLog = getLogger("result");
 
     private static StringBuilder results = new StringBuilder();
@@ -63,8 +63,6 @@ public abstract class AbstractMealServiceTest {
         SLF4JBridgeHandler.install();
     }
 
-
-
     @AfterClass
     public static void printResult() {
         resultLog.info("\n---------------------------------" +
@@ -78,7 +76,13 @@ public abstract class AbstractMealServiceTest {
     protected MealService service;
 
     @Autowired
-    private Environment environment;
+    protected MealRepository repository;
+    @Before
+    public void setUp(){
+        InMemoryMealRepositoryImpl repo = (InMemoryMealRepositoryImpl)repository;
+        repo.setUp();
+
+    }
 
     @Test
     public void testDelete() throws Exception {
@@ -140,7 +144,6 @@ public abstract class AbstractMealServiceTest {
 
     @Test
     public void testValidation() throws Exception {
-        Assume.assumeTrue(!environment.acceptsProfiles("jdbc"));
         validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "  ", 300), USER_ID), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new Meal(null, null, "Description", 300), USER_ID), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 9), USER_ID), ConstraintViolationException.class);

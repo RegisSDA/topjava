@@ -1,8 +1,10 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -24,6 +26,10 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Autowired
     protected JpaUtil jpaUtil;
 
+    @Autowired
+    protected Environment environment;
+
+
     @Before
     public void setUp() throws Exception {
         service.evictCache();
@@ -33,7 +39,11 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     public void testCreate() throws Exception {
         User newUser = new User(null, "New", "new@gmail.com", "newPass", 1555, false, Collections.singleton(Role.ROLE_USER));
+        System.out.println(newUser);
         User created = service.create(newUser);
+        System.out.println(created);
+        User gettedUser = service.get(created.getId());
+        System.out.println("gettedUser:"+gettedUser);
         newUser.setId(created.getId());
         MATCHER.assertCollectionEquals(Arrays.asList(ADMIN, newUser, USER), service.getAll());
     }
@@ -88,6 +98,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void testValidation() throws Exception {
+        Assume.assumeTrue(!environment.acceptsProfiles("jdbc"));
         validateRootCause(() -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "  ", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.ROLE_USER)), ConstraintViolationException.class);

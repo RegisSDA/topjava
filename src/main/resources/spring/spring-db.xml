@@ -57,6 +57,10 @@
         <bean id="namedJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
             <constructor-arg ref="dataSource"/>
         </bean>
+        <bean name="jpaUtil" class="ru.javawebinar.topjava.repository.mock.JpaUtilMock"/>
+        <bean name = "dataSourceTransactionMeneger" class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="dataSource"/>
+        </bean>
     </beans>
 
     <beans profile="jpa,datajpa">
@@ -98,7 +102,7 @@
         <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
               p:entityManagerFactory-ref="entityManagerFactory"/>
 
-        <bean class="ru.javawebinar.topjava.repository.JpaUtil"/>
+        <bean name="jpaUtil" class="ru.javawebinar.topjava.repository.JpaUtilImpl"/>
     </beans>
 
     <beans profile="jpa">

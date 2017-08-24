@@ -9,6 +9,7 @@ import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -18,6 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
@@ -30,7 +35,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public Meal save(Meal meal, int userId) {
         Objects.requireNonNull(meal);
-
+        testConstraint(meal);
         /*
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
@@ -51,7 +56,24 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @PostConstruct
     public void postConstruct() {
+
         log.info("+++ PostConstruct");
+    }
+
+    public void setUp(){
+        repository.clear();
+        repository.put(USER_ID,new ConcurrentHashMap<>());
+        Map<Integer,Meal> meals = repository.get(USER_ID);
+        meals.put(MEAL1.getId(),MEAL1);
+        meals.put(MEAL2.getId(),MEAL2);
+        meals.put(MEAL3.getId(),MEAL3);
+        meals.put(MEAL4.getId(),MEAL4);
+        meals.put(MEAL5.getId(),MEAL5);
+        meals.put(MEAL6.getId(),MEAL6);
+        repository.put(ADMIN_ID,new ConcurrentHashMap<>());
+        meals = repository.get(ADMIN_ID);
+        meals.put(ADMIN_MEAL1.getId(),ADMIN_MEAL1);
+        meals.put(ADMIN_MEAL2.getId(),ADMIN_MEAL2);
     }
 
     @PreDestroy
@@ -91,5 +113,16 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
                 Stream.empty() :
                 meals.values().stream()
                         .sorted(Comparator.comparing(Meal::getDateTime).reversed());
+    }
+
+    private void testConstraint(Meal meal){
+        if ((meal.getDateTime()==null)
+                ||(meal.getDescription()==null)
+                ||(meal.getDescription().matches(" +"))
+                ||(meal.getCalories()>3000)
+                ||(meal.getCalories()<10)){
+            throw new ConstraintViolationException(null);
+        }
+
     }
 }
