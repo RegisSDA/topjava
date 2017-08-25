@@ -43,39 +43,30 @@ public class JdbcMealRepositoryImpl implements MealRepository {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
-    @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
 
     @Override
+    @Transactional
     public Meal save(Meal meal, int userId) {
-        TransactionDefinition txDef = new DefaultTransactionDefinition();
-        TransactionStatus txStatus = dataSourceTransactionManager.getTransaction(txDef);
-        try {
-            MapSqlParameterSource map = new MapSqlParameterSource()
-                    .addValue("id", meal.getId())
-                    .addValue("description", meal.getDescription())
-                    .addValue("calories", meal.getCalories())
-                    .addValue("date_time", meal.getDateTime())
-                    .addValue("user_id", userId);
+        MapSqlParameterSource map = new MapSqlParameterSource()
+                .addValue("id", meal.getId())
+                .addValue("description", meal.getDescription())
+                .addValue("calories", meal.getCalories())
+                .addValue("date_time", meal.getDateTime())
+                .addValue("user_id", userId);
 
-            if (meal.isNew()) {
-                Number newId = insertMeal.executeAndReturnKey(map);
-                meal.setId(newId.intValue());
-            } else {
-                if (namedParameterJdbcTemplate.update("" +
-                                "UPDATE meals " +
-                                "   SET description=:description, calories=:calories, date_time=:date_time " +
-                                " WHERE id=:id AND user_id=:user_id"
-                        , map) == 0) {
-                    return null;
-                }
+        if (meal.isNew()) {
+            Number newId = insertMeal.executeAndReturnKey(map);
+            meal.setId(newId.intValue());
+        } else {
+            if (namedParameterJdbcTemplate.update("" +
+                            "UPDATE meals " +
+                            "   SET description=:description, calories=:calories, date_time=:date_time " +
+                            " WHERE id=:id AND user_id=:user_id"
+                    , map) == 0) {
+                return null;
             }
-            dataSourceTransactionManager.commit(txStatus);
-            return meal;
-        } catch (Exception e) {
-            dataSourceTransactionManager.rollback(txStatus);
-            return null;
         }
+        return meal;
     }
 
     @Override

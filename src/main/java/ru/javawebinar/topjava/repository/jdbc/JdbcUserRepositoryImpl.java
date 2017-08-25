@@ -46,49 +46,39 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
-    @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
 
     @Override
+    @Transactional
     public User save(User user) {
         final String SQL_INSERT = "insert into user_roles (user_id, role) VALUES (?,?)";
         final String SQL_DELETE = "delete from user_roles where user_id=? and role =?";
 
-        DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
-        TransactionStatus txStatus = dataSourceTransactionManager.getTransaction(txDef);
-        try {
-            BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
+        BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
 
-            if (user.isNew()) {
-                Number newKey = insertUser.executeAndReturnKey(parameterSource);
-                user.setId(newKey.intValue());
-                butch(SQL_INSERT, new ArrayList<>(user.getRoles()), user.getId());
-            } else {
-                namedParameterJdbcTemplate.update(
-                        "UPDATE users SET name=:name, email=:email, password=:password, " +
-                                "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource);
-                //достаем роли из ДБ
-                Set<String> rolesSet = new HashSet<>(jdbcTemplate.queryForList("SELECT role FROM user_roles WHERE user_id=?", String.class, user.getId()));
+        if (user.isNew()) {
+            Number newKey = insertUser.executeAndReturnKey(parameterSource);
+            user.setId(newKey.intValue());
+            butch(SQL_INSERT, new ArrayList<>(user.getRoles()), user.getId());
+        } else {
+            namedParameterJdbcTemplate.update(
+                    "UPDATE users SET name=:name, email=:email, password=:password, " +
+                            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource);
+            //достаем роли из ДБ
+            Set<String> rolesSet = new HashSet<>(jdbcTemplate.queryForList("SELECT role FROM user_roles WHERE user_id=?", String.class, user.getId()));
 
-                List<Role> toInsert = new ArrayList<>();
-                //роли которых нет в ДБ - добавляем в список toInsert, которые есть в ДБ - удаляем из rolesSet, что бы потом удалить из ДБ все отсавшиеся в rolesSet
-                user.getRoles().forEach(a -> {
-                    if (!rolesSet.contains(a.toString())) {
-                        toInsert.add(a);
-                    } else {
-                        rolesSet.remove(a.toString());
-                    }
-                });
-                butch(SQL_INSERT, toInsert, user.getId());
-                butch(SQL_DELETE, rolesSet.stream().map(Role::valueOf).collect(Collectors.toList()), user.getId());
-
-            }
-            dataSourceTransactionManager.commit(txStatus);
-            return user;
-        } catch (Exception e) {
-            dataSourceTransactionManager.rollback(txStatus);
-            throw e;
+            List<Role> toInsert = new ArrayList<>();
+            //роли которых нет в ДБ - добавляем в список toInsert, которые есть в ДБ - удаляем из rolesSet, что бы потом удалить из ДБ все отсавшиеся в rolesSet
+            user.getRoles().forEach(a -> {
+                if (!rolesSet.contains(a.toString())) {
+                    toInsert.add(a);
+                } else {
+                    rolesSet.remove(a.toString());
+                }
+            });
+            butch(SQL_INSERT, toInsert, user.getId());
+            butch(SQL_DELETE, rolesSet.stream().map(Role::valueOf).collect(Collectors.toList()), user.getId());
         }
+        return user;
     }
 
     @Override
