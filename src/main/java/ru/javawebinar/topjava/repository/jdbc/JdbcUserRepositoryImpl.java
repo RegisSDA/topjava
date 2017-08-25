@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -23,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@Transactional(readOnly = true)
 public class JdbcUserRepositoryImpl implements UserRepository {
 
     private static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
@@ -33,8 +35,6 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     private final SimpleJdbcInsert insertUser;
 
-    private String SQLInsert = "insert into user_roles (user_id, role) VALUES (?,?)";
-    private String SQLDelete = "delete from user_roles where user_id=? and role =?";
 
     @Autowired
     public JdbcUserRepositoryImpl(DataSource dataSource, JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -51,6 +51,9 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
+        final String SQL_INSERT = "insert into user_roles (user_id, role) VALUES (?,?)";
+        final String SQL_DELETE = "delete from user_roles where user_id=? and role =?";
+
         DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
         TransactionStatus txStatus = dataSourceTransactionManager.getTransaction(txDef);
         try {
@@ -59,31 +62,32 @@ public class JdbcUserRepositoryImpl implements UserRepository {
             if (user.isNew()) {
                 Number newKey = insertUser.executeAndReturnKey(parameterSource);
                 user.setId(newKey.intValue());
-                butch(SQLInsert,new ArrayList<>(user.getRoles()),user.getId());
+                butch(SQL_INSERT, new ArrayList<>(user.getRoles()), user.getId());
             } else {
                 namedParameterJdbcTemplate.update(
                         "UPDATE users SET name=:name, email=:email, password=:password, " +
                                 "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource);
-                Set<String> rolesSet = new HashSet<>(jdbcTemplate.queryForList("select role from user_roles where user_id=?",String.class,user.getId()));
-                List<Role> toInsert = new ArrayList<>();
+                //достаем роли из ДБ
+                Set<String> rolesSet = new HashSet<>(jdbcTemplate.queryForList("SELECT role FROM user_roles WHERE user_id=?", String.class, user.getId()));
 
-                user.getRoles().forEach(a->{
+                List<Role> toInsert = new ArrayList<>();
+                //роли которых нет в ДБ - добавляем в список toInsert, которые есть в ДБ - удаляем из rolesSet, что бы потом удалить из ДБ все отсавшиеся в rolesSet
+                user.getRoles().forEach(a -> {
                     if (!rolesSet.contains(a.toString())) {
                         toInsert.add(a);
-                    }else{
+                    } else {
                         rolesSet.remove(a.toString());
                     }
                 });
-                butch(SQLInsert,toInsert,user.getId());
-                butch(SQLDelete,rolesSet.stream().map(Role::valueOf).collect(Collectors.toList()), user.getId());
+                butch(SQL_INSERT, toInsert, user.getId());
+                butch(SQL_DELETE, rolesSet.stream().map(Role::valueOf).collect(Collectors.toList()), user.getId());
 
             }
             dataSourceTransactionManager.commit(txStatus);
             return user;
-        }catch(Exception e){
-            e.printStackTrace();
+        } catch (Exception e) {
             dataSourceTransactionManager.rollback(txStatus);
-            return null;
+            throw e;
         }
     }
 
@@ -96,14 +100,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     public User get(int id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
         User user = DataAccessUtils.singleResult(users);
-        if(user==null){
-            return null;
-        }
-        List<String> rolesList = jdbcTemplate.queryForList("select role from user_roles where user_id=?",String.class,user.getId());
-        Set<Role> roles = new HashSet<>();
-        rolesList.forEach(a->roles.add(Role.valueOf(a)));
-        user.setRoles(roles);
-        return user;
+        return setRolesFromDB(user);
     }
 
     @Override
@@ -111,40 +108,49 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         User user = DataAccessUtils.singleResult(users);
-        if(user==null){
-            return null;
-        }
-        List<String> roles = jdbcTemplate.queryForList("SELECT role FROM user_roles WHERE user_id=?",String.class,user.getId());
-        Set<Role> setOfRoles = new HashSet<>();
-        roles.forEach(r->setOfRoles.add(Role.valueOf(r)));
-        user.setRoles(setOfRoles);
-        return user;
+        return setRolesFromDB(user);
     }
 
     @Override
     public List<User> getAll() {
-        List<Map<String,Object>> userToRoleTable=jdbcTemplate.queryForList("SELECT role, user_id FROM user_roles");
-        Map<Integer,Set<Role>> idToRolesMap = new HashMap<>();
-        userToRoleTable.forEach(a->idToRolesMap.computeIfAbsent((Integer)a.get("user_id"),HashSet<Role>::new).add(Role.valueOf((String)a.get("role"))));
+        //достаем все строки из таблицы user_roles
+        List<Map<String, Object>> userToRoleTable = jdbcTemplate.queryForList("SELECT role, user_id FROM user_roles");
+        //групперуем в карту id - Set<Role>
+        Map<Integer, Set<Role>> idToRolesMap = new HashMap<>();
+        userToRoleTable.forEach(a -> idToRolesMap.computeIfAbsent((Integer) a.get("user_id"), (placeHolder) -> (EnumSet.noneOf(Role.class)))
+                .add(Role.valueOf((String) a.get("role"))));
+        //присваиваем соответствующие сеты ролей
         List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
-        users.forEach(u->u.setRoles(idToRolesMap.get(u.getId())));
+        users.forEach(u -> u.setRoles(idToRolesMap.get(u.getId())));
         return users;
     }
 
-    private void butch(String sql, List<Role> list,int userId){
-        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                Role role = list.get(i);
-                ps.setInt(1,userId);
-                ps.setString(2,role.toString());
-            }
+    private void butch(String sql, List<Role> list, int userId) {
+        if (!list.isEmpty()) {
+            jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    Role role = list.get(i);
+                    ps.setInt(1, userId);
+                    ps.setString(2, role.toString());
+                }
 
-            @Override
-            public int getBatchSize() {
-                return list.size();
-            }
-        });
+                @Override
+                public int getBatchSize() {
+                    return list.size();
+                }
+            });
+        }
+    }
+
+    private User setRolesFromDB(User user) {
+        if (user != null) {
+            List<String> rolesList = jdbcTemplate.queryForList("SELECT role FROM user_roles WHERE user_id=?", String.class, user.getId());
+            EnumSet<Role> roles = EnumSet.noneOf(Role.class);
+            rolesList.forEach(a -> roles.add(Role.valueOf(a)));
+            user.setRoles(roles);
+        }
+        return user;
     }
 
 }

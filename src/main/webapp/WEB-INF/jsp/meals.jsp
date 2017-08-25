@@ -6,43 +6,43 @@
 
 <html>
 <head>
-    <title><spring:message code = "meal.calories.management"/></title>
+    <title><spring:message code="meal.calories.management"/></title>
     <link rel="stylesheet" href="resources/css/style.css">
 </head>
 <jsp:include page="fragments/headTag.jsp"/>
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-    <h3><spring:message code = "meal.meal"/></h3>
-    <form method="post" action="filter">
+    <h3><spring:message code="meal.meal"/></h3>
+    <form method="post" action="meals">
         <dl>
-            <dt><spring:message code = "meal.start.date"/></dt>
+            <dt><spring:message code="meal.start.date"/></dt>
             <dd><input type="date" name="startDate" value="${param.startDate}"></dd>
         </dl>
         <dl>
-            <dt><spring:message code = "meal.end.date"/></dt>
+            <dt><spring:message code="meal.end.date"/></dt>
             <dd><input type="date" name="endDate" value="${param.endDate}"></dd>
         </dl>
         <dl>
-            <dt><spring:message code = "meal.start.time"/></dt>
+            <dt><spring:message code="meal.start.time"/></dt>
             <dd><input type="time" name="startTime" value="${param.startTime}"></dd>
         </dl>
         <dl>
-            <dt><spring:message code = "meal.end.time"/></dt>
+            <dt><spring:message code="meal.end.time"/></dt>
             <dd><input type="time" name="endTime" value="${param.endTime}"></dd>
         </dl>
-        <button type="submit"><spring:message code = "meal.filter"/></button>
+        <button type="submit"><spring:message code="meal.filter"/></button>
     </form>
     <hr/>
-    <a href="createTemplate"><spring:message code = "meal.add"/></a>
+    <a href="meals/createTemplate"><spring:message code="meal.add"/></a>
     <hr/>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
-            <th><spring:message code = "meal.date"/></th>
-            <th><spring:message code = "meal.description"/></th>
-            <th><spring:message code = "meal.calories"/></th>
-            <th colspan="2"><spring:message code = "meal.action"/></th>
+            <th><spring:message code="meal.date"/></th>
+            <th><spring:message code="meal.description"/></th>
+            <th><spring:message code="meal.calories"/></th>
+            <th colspan="2"><spring:message code="meal.action"/></th>
         </tr>
         </thead>
         <c:forEach items="${meals}" var="meal">
@@ -56,8 +56,8 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
-                <td><a href="updateTemplate?id=${meal.id}"><spring:message code = "meal.update"/></a></td>
-                <td><a href="delete?id=${meal.id}"><spring:message code = "meal.delete"/></a></td>
+                <td><a href="meals/updateTemplate?id=${meal.id}"><spring:message code="meal.update"/></a></td>
+                <td><a href="meals/delete?id=${meal.id}"><spring:message code="meal.delete"/></a></td>
             </tr>
         </c:forEach>
     </table>

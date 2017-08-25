@@ -58,7 +58,7 @@
             <constructor-arg ref="dataSource"/>
         </bean>
         <bean name="jpaUtil" class="ru.javawebinar.topjava.repository.mock.JpaUtilMock"/>
-        <bean name = "dataSourceTransactionMeneger" class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <bean name = "dataSourceTransactionManager" class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
             <property name="dataSource" ref="dataSource"/>
         </bean>
     </beans>
