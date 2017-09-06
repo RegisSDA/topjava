@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
@@ -94,20 +95,39 @@ public class MealRestControllerTest extends AbstractControllerTest {
         MATCHER.assertEquals(updated, mealService.get(updated.getId(), USER_ID));
     }
 
+
     @Test
     public void getBetween() throws Exception {
-        mockMvc.perform(get(REST_URL +"filtered")
-                .param("startDateTime","2015-05-15T09:00:00")
-                .param("endDateTime","2015-05-30T23:00:00"))//"2015-05-15T09:00:00/2015-05-30T23:00:00"
+        mockMvc.perform(get(REST_URL + "filtered")
+                .param("startDate", "2015-05-15")
+                .param("startTime", "09:00:00")
+                // .param("endDate","2015-05-30")
+                .param("endTime", "23:00:00"))//"2015-05-15T09:00:00/2015-05-30T23:00:00"
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MATCHER_WITH_EXCEED.contentListMatcher(MealsUtil.getFilteredWithExceeded(
-                        mealService.getBetweenDates(LocalDate.of(2015, 5, 15), LocalDate.of(2015, 5, 30), USER_ID),
+                        mealService.getBetweenDates(LocalDate.of(2015, 5, 15), DateTimeUtil.MAX_DATE, USER_ID),
                         LocalTime.of(9, 0, 0, 0),
                         LocalTime.of(23, 0, 0, 0),
                         USER.getCaloriesPerDay())));
 
     }
+
+//    @Test
+//    public void getBetween() throws Exception {
+//        mockMvc.perform(get(REST_URL +"filtered")
+//                .param("startDateTime","2015-05-15T09:00:00")
+//                .param("endDateTime","2015-05-30T23:00:00"))//"2015-05-15T09:00:00/2015-05-30T23:00:00"
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+//                .andExpect(MATCHER_WITH_EXCEED.contentListMatcher(MealsUtil.getFilteredWithExceeded(
+//                        mealService.getBetweenDates(LocalDate.of(2015, 5, 15), LocalDate.of(2015, 5, 30), USER_ID),
+//                        LocalTime.of(9, 0, 0, 0),
+//                        LocalTime.of(23, 0, 0, 0),
+//                        USER.getCaloriesPerDay())));
+//
+//    }
 
 }
