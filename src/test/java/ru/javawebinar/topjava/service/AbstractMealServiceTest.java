@@ -42,7 +42,7 @@ import static ru.javawebinar.topjava.service.AbstractServiceTest.validateRootCau
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 @ActiveProfiles(resolver = ActiveDbProfileResolver.class)
-public class AbstractMealServiceTest{
+public abstract class AbstractMealServiceTest {
     private static final Logger resultLog = getLogger("result");
 
     private static StringBuilder results = new StringBuilder();
@@ -147,6 +147,7 @@ public class AbstractMealServiceTest{
         validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 9), USER_ID), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 5001), USER_ID), ConstraintViolationException.class);
     }
+
     public boolean isJpaBased() {
 //        return Arrays.stream(env.getActiveProfiles()).noneMatch(Profiles.JDBC::equals);
         return env.acceptsProfiles(Profiles.JPA, Profiles.DATAJPA);

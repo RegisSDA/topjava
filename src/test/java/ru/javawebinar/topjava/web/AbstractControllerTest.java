@@ -37,7 +37,7 @@ abstract public class AbstractControllerTest {
     }
 
     @Autowired
-    private JpaUtil jpaUtil;
+    protected JpaUtil jpaUtil;
 
     protected MockMvc mockMvc;
 
