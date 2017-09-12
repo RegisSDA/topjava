@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
@@ -34,4 +35,14 @@ public class AdminAjaxController extends AbstractUserController {
             super.create(user);
         }
     }
+
+    @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
+    public List<User> enabledChange(@PathVariable("id") Integer id) {
+        User user = super.get(id);
+        user.setEnabled(!user.isEnabled());
+        super.update(user, id);
+        return super.getAll();
+    }
+
 }

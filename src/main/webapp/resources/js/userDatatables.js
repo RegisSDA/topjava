@@ -47,3 +47,10 @@ function updateTable() {
         datatableApi.clear().rows.add(data).draw();
     });
 }
+
+function enabledCheckBox(id) {
+    $.post(ajaxUrl + id, function (data) {
+        datatableApi.clear().rows.add(data).draw();
+    });
+}
+
