@@ -1,6 +1,7 @@
 function makeEditable() {
+
     $(".delete").click(function () {
-        deleteRow($(this).attr("id"));
+        deleteRow($(this).parent().parent().attr("id"));
     });
 
     $("#detailsForm").submit(function () {
@@ -21,6 +22,7 @@ function add() {
     $("#editRow").modal();
 }
 
+
 function deleteRow(id) {
     $.ajax({
         url: ajaxUrl + id,
@@ -32,11 +34,6 @@ function deleteRow(id) {
     });
 }
 
-function updateTable() {
-    $.get(ajaxUrl, function (data) {
-        datatableApi.clear().rows.add(data).draw();
-    });
-}
 
 function save() {
     var form = $("#detailsForm");
